@@ -47,6 +47,7 @@ type IAccountService interface {
 	RegisterAccountAndUser(r *RegistrationDetails) (*repository.Account, error)
 	LoginAccount(l *LoginDetails) (*JWT, error)
 	ValidateJWT(r *RoleAccess, jwt string) error
+	ValidateAccountExists(accountId string) bool
 }
 
 type AccountService struct {
@@ -123,4 +124,9 @@ func (a *AccountService) ValidateJWT(roleAccess *RoleAccess, jwt string) error {
 		return errors.New("401, Not a Valid JWT")
 	}
 	return nil
+}
+
+func (a *AccountService) ValidateAccountExists(accountId string) bool {
+	_, isFound := a.Repo.FindByAccountId(accountId)
+	return isFound
 }

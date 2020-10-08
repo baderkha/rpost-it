@@ -61,6 +61,9 @@ func migrate(db *gorm.DB) {
 
 	var user repository.User
 	_ = db.AutoMigrate(&user)
+
+	var post repository.Post
+	_ = db.AutoMigrate(&post)
 }
 
 func makeCors(router *gin.Engine) {
@@ -84,6 +87,11 @@ func makeRestRoutes(router *gin.Engine, controller *dependency.Dependency) {
 			account.POST("", controller.POSTAccount)
 			// generate a jwt for account if valid
 			account.POST("jwt", controller.POSTAccountJWT)
+		}
+		post := api.Group("posts")
+		{
+			post.GET(":id", controller.GetPostById)
+			post.POST("", controller.CreatePost)
 		}
 	}
 }

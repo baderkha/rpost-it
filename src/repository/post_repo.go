@@ -16,10 +16,10 @@ type Post struct {
 type IPostRepo interface {
 	FindByPostId(id string) (*Post, bool)
 	FindByAccountId(accountId string) *[]Post
-	FindAlL() *[]Post
+	FindAll() *[]Post
 	FindByCommunityId(communityId string) *[]Post
 	CreatePost(post *Post) bool
-	DeletePostByPostId(post *Post) bool
+	DeletePostByPostId(id string) bool
 	UpdatePost(Post *Post) bool
 }
 
@@ -56,6 +56,15 @@ func (p *PostRepo) FindByAccountId(accountId string) *[]Post {
 	p.
 		GetContext().
 		Where("account_id=?", accountId).
+		Find(&posts)
+	return &posts
+}
+
+func (p *PostRepo) FindByCommunityId(communityId string) *[]Post {
+	var posts []Post
+	p.
+		GetContext().
+		Where("community_id=?", communityId).
 		Find(&posts)
 	return &posts
 }
