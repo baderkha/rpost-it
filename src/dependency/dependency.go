@@ -5,9 +5,11 @@ import (
 	"comment-me/src/repository"
 	"comment-me/src/service"
 	"comment-me/src/util"
+
 	"gorm.io/gorm"
 )
 
+// ServerEnvDependency : Server dependencies required to build controller dependencies
 type ServerEnvDependency struct {
 	HashStrength uint   `json:"hashStrength"`
 	JWTTokenTime int64  `json:"jwtTokenTimeMinutes"`
@@ -15,11 +17,14 @@ type ServerEnvDependency struct {
 	JWTSecret    string `json:"jwtSecret"`
 }
 
+// Dependency : Dependencies required for the router
 type Dependency struct {
 	*controller.AccountController
 	*controller.PostController
+	*controller.CommunityController
 }
 
+// MakeDependencies : Makes the Dependencies into a unified accessible facade
 func MakeDependencies(db *gorm.DB, serverEnv *ServerEnvDependency) *Dependency {
 	return &Dependency{
 		AccountController: &controller.AccountController{
@@ -42,6 +47,16 @@ func MakeDependencies(db *gorm.DB, serverEnv *ServerEnvDependency) *Dependency {
 						BaseRepo: repository.BaseRepo{
 							Context: db,
 						},
+					},
+				},
+			},
+		},
+		CommunityController: &controller.CommunityController{
+			BaseController: controller.BaseController{},
+			Service: &service.CommunityService{
+				Repo: &repository.CommunityRepo{
+					BaseRepo: repository.BaseRepo{
+						Context: db,
 					},
 				},
 			},

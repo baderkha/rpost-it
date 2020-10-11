@@ -4,18 +4,19 @@ import (
 	"comment-me/src/dependency"
 	"comment-me/src/repository"
 	"encoding/json"
+	"io/ioutil"
+	"log"
+	"os"
+	"time"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"io/ioutil"
-	"log"
-	"os"
-	"time"
 )
 
-// Models our json input
+// ServerEnv : Models our json input
 type ServerEnv struct {
 	DSN          string `json:"dsn"`
 	HashStrength uint   `json:"hashStrength"`
@@ -55,6 +56,7 @@ func getDB(serverEnv *ServerEnv) *gorm.DB {
 	return db
 }
 
+// Migration for the models , goes here
 func migrate(db *gorm.DB) {
 	var acc repository.Account
 	_ = db.AutoMigrate(&acc)
@@ -64,6 +66,9 @@ func migrate(db *gorm.DB) {
 
 	var post repository.Post
 	_ = db.AutoMigrate(&post)
+
+	var community repository.Community
+	_ = db.AutoMigrate(&community)
 }
 
 func makeCors(router *gin.Engine) {
@@ -92,6 +97,12 @@ func makeRestRoutes(router *gin.Engine, controller *dependency.Dependency) {
 		{
 			post.GET(":id", controller.GetPostById)
 			post.POST("", controller.CreatePost)
+		}
+
+		community := api.Group("communities")
+		{
+			community.GET(":id", controller.GetByHumanReadibleID)
+			community.POST("", controller.CreateCommunity)
 		}
 	}
 }

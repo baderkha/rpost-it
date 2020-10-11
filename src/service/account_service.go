@@ -59,6 +59,12 @@ type AccountService struct {
 	JWTValidityMinutes     int64
 }
 
+// obfuscateAccount : This is a very important method to hide the password ,please use it if you intend on returning
+func (a *AccountService) obfuscateAccountTrustedUser(account *repository.Account) *repository.Account {
+	account.Password = ""
+	return account
+}
+
 func (a *AccountService) RegisterAccount(r *RegistrationDetails) (*repository.Account, error) {
 	_, accountAlreadyExists := a.Repo.FindByAvatarIdOrByEmail(r.AvatarId, r.Email)
 	if accountAlreadyExists {
@@ -74,7 +80,7 @@ func (a *AccountService) RegisterAccount(r *RegistrationDetails) (*repository.Ac
 	acc.Email = r.Email
 	isCreated := a.Repo.CreateAccount(&acc)
 	if isCreated {
-		return &acc, nil
+		return a.obfuscateAccountTrustedUser(&acc), nil
 	}
 	return nil, errors.New("500,Could Not Create Profile. Please Contact API Admin")
 }
@@ -96,7 +102,7 @@ func (a *AccountService) RegisterAccountAndUser(r *RegistrationDetails) (*reposi
 	}
 	acc.User = *user
 	acc, _ = a.Repo.FindByAccountId(fmt.Sprintf("%d", acc.ID))
-	return acc, nil
+	return a.obfuscateAccountTrustedUser(acc), nil
 }
 
 func (a *AccountService) LoginAccount(l *LoginDetails) (*JWT, error) {
