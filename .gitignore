@@ -1,3 +1,4 @@
 env.json
 dist
 *.zip
+node_modules
