@@ -101,8 +101,11 @@ func makeRestRoutes(router *gin.Engine, controller *dependency.Dependency) {
 
 		community := api.Group("communities")
 		{
-			community.GET(":id", controller.GetByHumanReadibleID)
+
+			community.GET(":readableId", controller.GetByHumanReadibleID)
 			community.POST("", controller.CreateCommunity)
+			community.GET(":readableId/posts", controller.GetPostsByUniqueCommunityId)
+			community.POST(":readableId/posts", controller.CreatePost)
 		}
 	}
 }

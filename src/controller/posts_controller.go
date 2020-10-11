@@ -11,8 +11,12 @@ type PostController struct {
 }
 
 func (p *PostController) CreatePost(c *gin.Context) {
+	uniqueId := c.Param("readableId")
 	var postReq service.PostCreateRequestBody
 	var postIdentity service.PostRequestQuery
+	if uniqueId != "" {
+		postIdentity.CommunityUniqueId = &uniqueId
+	}
 	err := c.ShouldBindQuery(&postIdentity)
 	if err != nil {
 		p.GinInputError(c, err)
@@ -38,4 +42,18 @@ func (p *PostController) GetPostById(c *gin.Context) {
 		return
 	}
 	p.OK(c, post)
+}
+
+func (p *PostController) GetPostsByUniqueCommunityId(c *gin.Context) {
+	id := c.Param("readableId")
+	if id == "" {
+		p.BadRequest(c, "Id must be set")
+		return
+	}
+	com, err := p.Service.GetPostsForCommunityByUniqueId(id)
+	if err != nil {
+		p.GenerateResponseFromError(c, err)
+		return
+	}
+	p.OK(c, com)
 }

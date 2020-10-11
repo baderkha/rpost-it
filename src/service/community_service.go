@@ -35,11 +35,19 @@ type ICommunityService interface {
 
 // CommunityService : concrete implementation fo the community service
 type CommunityService struct {
-	Repo repository.ICommunityRepo
+	Repo           repository.ICommunityRepo
+	AccountService IAccountService
 }
 
 // CreateCommunity : Creates a COMMUNITY if one des not exist by the unique id
 func (c *CommunityService) CreateCommunity(identity *CommunityIdentitiy, comBody *CreateCommunityBody) (*repository.Community, error) {
+
+	// ensure we have account
+	accountExists := c.AccountService.ValidateAccountExists(fmt.Sprint(identity.AccountOwner))
+	if !accountExists {
+		return nil, errors.New("400, This account does not exist")
+	}
+
 	// make sure we don't have one that exists , that will cause problems
 	_, isAlreadyExists := c.Repo.FindCommunityByUniqueID(comBody.UniqueID)
 	if isAlreadyExists {

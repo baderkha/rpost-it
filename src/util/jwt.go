@@ -57,7 +57,6 @@ func (j *JWTHS265) ValidateWebToken(token string) (isValid bool, jwtStdClaims *C
 			return false, nil
 		}
 	}
-
 	if !tkn.Valid {
 		return false, nil
 	}

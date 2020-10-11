@@ -54,6 +54,27 @@ func MakeDependencies(db *gorm.DB, serverEnv *ServerEnvDependency) *Dependency {
 		CommunityController: &controller.CommunityController{
 			BaseController: controller.BaseController{},
 			Service: &service.CommunityService{
+				AccountService: &service.AccountService{
+					JWTValidityMinutes: serverEnv.JWTTokenTime,
+					JWTHelper: &util.JWTHS265{
+						Issuer: serverEnv.JWTIssuer,
+						Secret: []byte(serverEnv.JWTSecret),
+					},
+					PassWordHashedStrength: serverEnv.HashStrength,
+					PasswordHelper:         &util.PasswordBcrypt{},
+					Repo: &repository.AccountRepo{
+						BaseRepo: repository.BaseRepo{
+							Context: db,
+						},
+					},
+					UserService: &service.UserService{
+						Repo: &repository.UserRepo{
+							BaseRepo: repository.BaseRepo{
+								Context: db,
+							},
+						},
+					},
+				},
 				Repo: &repository.CommunityRepo{
 					BaseRepo: repository.BaseRepo{
 						Context: db,
@@ -67,6 +88,13 @@ func MakeDependencies(db *gorm.DB, serverEnv *ServerEnvDependency) *Dependency {
 				Repo: &repository.PostRepo{
 					BaseRepo: repository.BaseRepo{
 						Context: db,
+					},
+				},
+				CommunityService: &service.CommunityService{
+					Repo: &repository.CommunityRepo{
+						BaseRepo: repository.BaseRepo{
+							Context: db,
+						},
 					},
 				},
 				AccountService: &service.AccountService{

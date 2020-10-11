@@ -12,27 +12,47 @@ type PostCreateRequestBody struct {
 }
 
 type PostRequestQuery struct {
-	CommunityId *uint `json:"communityId" binding:"required" form:"communityId"`
-	AccountId   *uint `json:"accountId" binding:"required" form:"accountId"`
+	CommunityId       *uint   `json:"communityId" form:"communityId"`
+	AccountId         *uint   `json:"accountId" binding:"required" form:"accountId"`
+	CommunityUniqueId *string `json:"readableId" form:"readableId"`
 }
 
 type IPostService interface {
 	CreatePostByAccount(postIdentity *PostRequestQuery, postReq *PostCreateRequestBody) (*repository.Post, error)
 	GetPostByid(id string) (*repository.Post, error)
-	GetPostsForCommunity(communityId string) *[]repository.Post
+	GetPostsForCommunity(communityId string) (*[]repository.Post, error)
+	GetPostsForCommunityByUniqueId(uniqueId string) (*[]repository.Post, error)
 }
 
 type PostService struct {
-	Repo           repository.IPostRepo
-	AccountService IAccountService
+	Repo             repository.IPostRepo
+	AccountService   IAccountService
+	CommunityService ICommunityService
 }
 
 func (p *PostService) CreatePostByAccount(postIdentity *PostRequestQuery, postReq *PostCreateRequestBody) (*repository.Post, error) {
 	var post repository.Post
+
+	// validation happens here
 	if postIdentity.AccountId == nil {
 		return nil, errors.New("400, Missing account Id to associate the post with")
-	} else if postIdentity.CommunityId == nil {
+	} else if postIdentity.CommunityId == nil && postIdentity.CommunityUniqueId == nil {
 		return nil, errors.New("400, Missing community Id to associate the post with")
+	} else if postIdentity.CommunityId == nil && postIdentity.CommunityUniqueId != nil {
+		// fetch the community internal id
+		com, err := p.CommunityService.FindCommunityByUniqueID(*postIdentity.CommunityUniqueId)
+		if err != nil {
+			return nil, err
+		}
+		postIdentity.CommunityId = &com.ID
+	} else if postIdentity.CommunityId != nil && postIdentity.CommunityUniqueId != nil {
+		return nil, errors.New("400, You cannot have both set set by unique id and the query parameter")
+	}
+
+	// verify it exists atleast
+	_, err := p.CommunityService.FindCommunityByID(fmt.Sprint(*postIdentity.CommunityId))
+	if err != nil {
+		return nil, err
 	}
 
 	isAccountExists := p.AccountService.ValidateAccountExists(fmt.Sprintf("%d", *postIdentity.AccountId))
@@ -63,7 +83,15 @@ func (p *PostService) GetPostByid(id string) (*repository.Post, error) {
 	return post, nil
 }
 
-func (p *PostService) GetPostsForCommunity(communityId string) *[]repository.Post {
+func (p *PostService) GetPostsForCommunity(communityId string) (*[]repository.Post, error) {
 	posts := p.Repo.FindByCommunityId(communityId)
-	return posts
+	return posts, nil
+}
+
+func (p *PostService) GetPostsForCommunityByUniqueId(unqiueId string) (*[]repository.Post, error) {
+	community, err := p.CommunityService.FindCommunityByUniqueID(unqiueId)
+	if err != nil {
+		return nil, err
+	}
+	return p.GetPostsForCommunity(fmt.Sprint(community.ID))
 }
