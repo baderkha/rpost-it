@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -84,6 +85,7 @@ func makeCors(router *gin.Engine) {
 
 // Define the gin routes in here using the router
 func makeRestRoutes(router *gin.Engine, controller *dependency.Dependency) {
+	router.Use(static.Serve("/", static.LocalFile("./client/rpost-it/build", true)))
 	api := router.Group("api")
 	{
 		account := api.Group("accounts")

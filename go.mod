@@ -9,6 +9,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-gonic/contrib v0.0.0-20201005132743-ca038bbf2944
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-ozzo/ozzo-validation/v4 v4.2.2
 	github.com/go-playground/validator/v10 v10.4.0 // indirect
@@ -24,7 +25,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/ugorji/go v1.1.10 // indirect
 	golang.org/x/crypto v0.0.0-20201002170205-7f63de1d35b0
-	golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f // indirect
+	golang.org/x/sys v0.0.0-20201009025420-dfb3f7c4e634 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 	gorm.io/driver/mysql v1.0.2

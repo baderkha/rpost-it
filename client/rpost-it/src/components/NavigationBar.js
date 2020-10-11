@@ -43,10 +43,10 @@ export default class NavigationBar extends Component {
                         </Form>
                         <Nav className=" mb-2 ml-auto">
                             <Nav.Item>
-                                <Nav.Link href="/signup">Sign Up</Nav.Link>
+                                <Nav.Link href="/#/signup">Sign Up</Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link href="/about">Login</Nav.Link>
+                                <Nav.Link href="/#/about">Login</Nav.Link>
                             </Nav.Item>
                         </Nav>
                     </Navbar.Collapse>

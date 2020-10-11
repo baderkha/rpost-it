@@ -5,6 +5,9 @@ start:
 shutodwn:
 	docker-compose -f docker/local/docker-compose.yml down
 build-local:prepare-build-dir
+	cd client/rpost-it && yarn build
+	mkdir -p dist/client/rpost-it/build
+	cp -r client/rpost-it/build/* dist/client/rpost-it/build
 	cp env.local.json dist/env.json
 	go build -o dist/main src/main.go
 build-deploy:prepare-build-dir
