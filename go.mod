@@ -3,6 +3,7 @@ module comment-me
 go 1.15
 
 require (
+	github.com/baderkha/xss-mw v0.0.0-20201011035010-307f29500e64 // indirect
 	github.com/bwmarrin/snowflake v0.3.0
 	github.com/catinello/base62 v0.0.0-20160325105823-e0daaeb631c9
 	github.com/davecgh/go-spew v1.1.1
@@ -16,6 +17,7 @@ require (
 	github.com/gomarkdown/markdown v0.0.0-20200824053859-8c8b3816f167
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/mattheath/base62 v0.0.0-20150408093626-b80cdc656a7a
+	github.com/microcosm-cc/bluemonday v1.0.4 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/rs/xid v1.2.1
