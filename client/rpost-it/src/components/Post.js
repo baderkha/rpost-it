@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Button, Card, Form, FormControl, FormGroup } from 'react-bootstrap';
+import {Card, Form, FormControl, FormGroup } from 'react-bootstrap';
+import PostButton from './Buttons/PostButton';
 import Styled, { ServerStyleSheet } from 'styled-components';
 
 const Style = Styled.div`
@@ -15,6 +16,7 @@ const Style = Styled.div`
     }
     .btn{
         margin-top : 10px;   
+        float: right;
     }
 `;
 
@@ -32,9 +34,9 @@ export default class Post extends Component {
                                         componentClass="textarea"
                                         placeholder="Post Something"
                                     />
-                                    <Button>Submit</Button>
                                 </div>
                             </FormGroup>
+                            <PostButton label="Post" onClick={()=>alert('post')}/>
                         </Form>
                     </Card.Body>
                 </Card>
