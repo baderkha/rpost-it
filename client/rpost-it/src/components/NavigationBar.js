@@ -81,7 +81,7 @@ export default class NavigationBar extends Component {
                         </Form>
                         <Nav>
                             <Nav.Item>
-                                <Nav.Link onClick={this.openRegModal}>SignUp</Nav.Link>
+                                <Nav.Link onClick={this.openRegModal}>Sign Up</Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
                                 <Nav.Link onClick={this.openLogModal}>Login</Nav.Link>
