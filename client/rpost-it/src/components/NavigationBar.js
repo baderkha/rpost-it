@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Nav, Navbar, Form, FormControl, Button, Col, InputGroup } from 'react-bootstrap';
+import { Nav, Navbar, Form,Col } from 'react-bootstrap';
 import styled from 'styled-components';
 import Registration from './Registration';
 import LoginModal from './Login';
@@ -13,7 +13,7 @@ const Styles = styled.div`
         color: white;
         &:hover {
             color: white;
-            opacity:0.5;
+            opacity: 0.5;
         }
         &:visited {
             color: white;
@@ -28,18 +28,18 @@ const Styles = styled.div`
             opactiy: 1;
         }
     }
-   
+
     .navbar-collapse {
         padding: 5px;
     }
     .search-bar-form {
-        flex-grow:1;
+        flex-grow: 1;
         width: 100%;
-        max-width : 690px;
-        margin:auto;
+        max-width: 690px;
+        margin: auto;
     }
-    .form-control{
-        width : 100%;
+    .form-control {
+        width: 100%;
     }
 `;
 

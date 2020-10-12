@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {Card, Form, FormControl, FormGroup } from 'react-bootstrap';
 import PostButton from './Buttons/PostButton';
-import Styled, { ServerStyleSheet } from 'styled-components';
+import Styled  from 'styled-components';
 
 const Style = Styled.div`
     .card{
