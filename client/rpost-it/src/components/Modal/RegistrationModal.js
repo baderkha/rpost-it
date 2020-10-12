@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Modal } from 'react-bootstrap';
-import ModalFooterButtons from './Modal/ModalFooterButtons';
+import ModalFooterButtons from './ModalFooterButtons';
 
 export default class RegistrationModal extends Component {
     constructor(props) {

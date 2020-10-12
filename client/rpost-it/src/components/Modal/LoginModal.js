@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Form, Modal } from 'react-bootstrap';
-import ModalFooterButtons from './Modal/ModalFooterButtons';
+import ModalFooterButtons from './ModalFooterButtons';
 export default class LoginModal extends Component {
     constructor(props) {
         super();
@@ -32,7 +32,7 @@ export default class LoginModal extends Component {
                         
                     </Form>
                 </Modal.Body>
-                <ModalFooterButtons submitName="Login" closeName="Close" onClose={this.props.onClose}/>
+                <ModalFooterButtons submitName="Login" closeName="Close" onSubmit={this.props.onLogin} onClose={this.props.onClose}/>
                 
             </Modal>
         );

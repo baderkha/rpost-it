@@ -19,7 +19,7 @@ export default class ModalFooterButtons extends Component {
             <Styles>
                 <Modal.Footer>
                     <div className="signup-footer">
-                        <Button variant="primary" type="submit">
+                        <Button variant="primary" type="submit" onClick={this.props.onSubmit}>
                             {this.props.submitName}
                         </Button>
                         <div className="cls-btn">

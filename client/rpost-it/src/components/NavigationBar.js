@@ -1,14 +1,33 @@
 import React, { Component } from 'react';
-import { Nav, Navbar, Form,Col } from 'react-bootstrap';
+import { Nav, Navbar, Form, Col } from 'react-bootstrap';
 import styled from 'styled-components';
-import Registration from './Registration';
-import LoginModal from './Login';
+import Registration from './Modal/RegistrationModal';
+import LoginModal from './Modal/LoginModal';
 import SearchButton from './Buttons/SearchButton';
 const Styles = styled.div`
     .navbar {
         background-color: #222;
     }
-    .navbar-brand,
+    .navbar-brand {
+        color: white;
+        margin-left: 5px;
+        &:hover {
+            color: white;
+            opacity: 0.5;
+        }
+        &:visited {
+            color: white;
+            opactiy: 1;
+        }
+        &:focus {
+            color: white;
+            opactiy: 1;ƒ
+        }
+        &:unfocus {
+            color: white;
+            opactiy: 1;
+        }
+    }
     .navbar-nav .nav-link {
         color: white;
         &:hover {
@@ -41,6 +60,9 @@ const Styles = styled.div`
     .form-control {
         width: 100%;
     }
+    .nav-item {
+        margin-top: 10px;
+    }
 `;
 
 export default class NavigationBar extends Component {
@@ -50,12 +72,16 @@ export default class NavigationBar extends Component {
         this.state = {
             isRegistrationModalOpen: false,
             isLoginModalOpen: false,
+            isLoggedIn: true,
         };
     }
     openRegModal = () => this.setState({ isRegistrationModalOpen: true });
     closeRegModal = () => this.setState({ isRegistrationModalOpen: false });
     openLogModal = () => this.setState({ isLoginModalOpen: true });
     closeLogModal = () => this.setState({ isLoginModalOpen: false });
+    showLoginState = () => this.setState({ isLoggedIn: true });
+    hideLoginState = () => this.setState({ isLoggedIn: false });
+    showLoginStateHideModal = () => this.setState({ isLoginModalOpen: false, isLoggedIn: true });
 
     render() {
         return (
@@ -80,11 +106,21 @@ export default class NavigationBar extends Component {
                             </Form.Row>
                         </Form>
                         <Nav>
-                            <Nav.Item>
+                            <Nav.Item hidden={this.state.isLoggedIn}>
                                 <Nav.Link onClick={this.openRegModal}>Sign Up</Nav.Link>
                             </Nav.Item>
-                            <Nav.Item>
+                            <Nav.Item hidden={this.state.isLoggedIn}>
                                 <Nav.Link onClick={this.openLogModal}>Login</Nav.Link>
+                            </Nav.Item>
+
+                            <Nav.Item hidden={!this.state.isLoggedIn}>
+                                <Nav.Link>Settings</Nav.Link>
+                            </Nav.Item>
+                            <Nav.Item hidden={!this.state.isLoggedIn}>
+                                <Nav.Link>Ahmad Baderkhan</Nav.Link>
+                            </Nav.Item>
+                            <Nav.Item hidden={!this.state.isLoggedIn}>
+                                <Nav.Link onClick={this.hideLoginState}>Log out</Nav.Link>
                             </Nav.Item>
                         </Nav>
                     </Navbar.Collapse>
@@ -93,7 +129,11 @@ export default class NavigationBar extends Component {
                     isOpen={this.state.isRegistrationModalOpen}
                     onClose={this.closeRegModal}
                 />
-                <LoginModal isOpen={this.state.isLoginModalOpen} onClose={this.closeLogModal} />
+                <LoginModal
+                    isOpen={this.state.isLoginModalOpen}
+                    onLogin={this.showLoginStateHideModal}
+                    onClose={this.closeLogModal}
+                />
             </Styles>
         );
     }

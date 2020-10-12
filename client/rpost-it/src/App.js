@@ -8,7 +8,7 @@ import NoMatch from './NoMatch';
 import Layout from './components/Layout';
 import NavigationBar from './components/NavigationBar';
 
-import Post from './components/Post';
+
 import Signup from './signup';
 class App extends Component {
     render() {
@@ -16,7 +16,7 @@ class App extends Component {
             <React.Fragment>
                 <NavigationBar />
                 <Layout>
-                    <Post />
+                    
                     <Router>
                         <Switch>
                             <Route exact path="/" component={Home} />
