@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Nav, Navbar, Form, Col } from 'react-bootstrap';
+import { Nav, Navbar, Form, Col, Alert } from 'react-bootstrap';
 import styled from 'styled-components';
 import Registration from './Modal/RegistrationModal';
 import LoginModal from './Modal/LoginModal';
@@ -72,7 +72,8 @@ export default class NavigationBar extends Component {
         this.state = {
             isRegistrationModalOpen: false,
             isLoginModalOpen: false,
-            isLoggedIn: true,
+            isLoggedIn: false,
+            user: null,
         };
     }
     openRegModal = () => this.setState({ isRegistrationModalOpen: true });
@@ -82,6 +83,23 @@ export default class NavigationBar extends Component {
     showLoginState = () => this.setState({ isLoggedIn: true });
     hideLoginState = () => this.setState({ isLoggedIn: false });
     showLoginStateHideModal = () => this.setState({ isLoginModalOpen: false, isLoggedIn: true });
+
+    onRegistration = (record) => {
+        this.setAccountState(record);
+    };
+    onLoginComplete = (record) => {
+        console.log(record);
+        this.setAccountState(record.account);
+    };
+
+    setAccountState = (accountRecord) => {
+        this.setState({
+            user: accountRecord,
+            isLoginModalOpen: false,
+            isLoggedIn: true,
+            isRegistrationModalOpen: false,
+        });
+    };
 
     render() {
         return (
@@ -117,7 +135,9 @@ export default class NavigationBar extends Component {
                                 <Nav.Link>Settings</Nav.Link>
                             </Nav.Item>
                             <Nav.Item hidden={!this.state.isLoggedIn}>
-                                <Nav.Link>Ahmad Baderkhan</Nav.Link>
+                                <Nav.Link>
+                                    {this.state.user ? this.state.user.AvatarId : null}
+                                </Nav.Link>
                             </Nav.Item>
                             <Nav.Item hidden={!this.state.isLoggedIn}>
                                 <Nav.Link onClick={this.hideLoginState}>Log out</Nav.Link>
@@ -128,11 +148,12 @@ export default class NavigationBar extends Component {
                 <Registration
                     isOpen={this.state.isRegistrationModalOpen}
                     onClose={this.closeRegModal}
+                    onRegistration={this.onRegistration}
                 />
                 <LoginModal
                     isOpen={this.state.isLoginModalOpen}
-                    onLogin={this.showLoginStateHideModal}
                     onClose={this.closeLogModal}
+                    onLoginComplete={this.onLoginComplete}
                 />
             </Styles>
         );

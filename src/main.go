@@ -74,7 +74,7 @@ func migrate(db *gorm.DB) {
 
 func makeCors(router *gin.Engine) {
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://shrter.xyz", "http://127.0.0.1:5500", "http://localhost:8080"},
+		AllowOrigins:     []string{"https://shrter.xyz", "http://127.0.0.1:5500", "http://localhost:8080", "http://localhost:3000"},
 		AllowMethods:     []string{"PUT", "PATCH", "POST", "DELETE", "GET"},
 		AllowHeaders:     []string{"Origin", "content-type", "authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -94,6 +94,10 @@ func makeRestRoutes(router *gin.Engine, controller *dependency.Dependency) {
 			account.POST("", controller.POSTAccount)
 			// generate a jwt for account if valid
 			account.POST("jwt", controller.POSTAccountJWT)
+		}
+		jwt := api.Group("authorization")
+		{
+			jwt.GET("/accounts", controller.GetAccountInfoByJWT)
 		}
 		post := api.Group("posts")
 		{

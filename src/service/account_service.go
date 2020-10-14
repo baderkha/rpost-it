@@ -5,6 +5,7 @@ import (
 	"comment-me/src/util"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -33,8 +34,9 @@ type RoleAccess struct {
 }
 
 type JWT struct {
-	Token       string `json:"token"`
-	ExpiryEpoch int64  `json:"expiryEpoch"`
+	Token       string              `json:"token"`
+	ExpiryEpoch int64               `json:"expiryEpoch"`
+	Account     *repository.Account `json:"account"`
 }
 
 type JWTClaim struct {
@@ -43,11 +45,11 @@ type JWTClaim struct {
 }
 
 type IAccountService interface {
-	RegisterAccount(r *RegistrationDetails) (*repository.Account, error)
-	RegisterAccountAndUser(r *RegistrationDetails) (*repository.Account, error)
+	RegisterAccountAndUser(r *RegistrationDetails) (*JWT, error)
 	LoginAccount(l *LoginDetails) (*JWT, error)
 	ValidateJWT(r *RoleAccess, jwt string) error
 	ValidateAccountExists(accountId string) bool
+	GetAccountInfoByJWT(JWT string) (*repository.Account, error)
 }
 
 type AccountService struct {
@@ -65,7 +67,7 @@ func (a *AccountService) obfuscateAccountTrustedUser(account *repository.Account
 	return account
 }
 
-func (a *AccountService) RegisterAccount(r *RegistrationDetails) (*repository.Account, error) {
+func (a *AccountService) registerAccount(r *RegistrationDetails) (*repository.Account, error) {
 	_, accountAlreadyExists := a.Repo.FindByAvatarIdOrByEmail(r.AvatarId, r.Email)
 	if accountAlreadyExists {
 		return nil, errors.New("400, This account already exists")
@@ -80,13 +82,13 @@ func (a *AccountService) RegisterAccount(r *RegistrationDetails) (*repository.Ac
 	acc.Email = r.Email
 	isCreated := a.Repo.CreateAccount(&acc)
 	if isCreated {
-		return a.obfuscateAccountTrustedUser(&acc), nil
+		return &acc, nil
 	}
 	return nil, errors.New("500,Could Not Create Profile. Please Contact API Admin")
 }
 
-func (a *AccountService) RegisterAccountAndUser(r *RegistrationDetails) (*repository.Account, error) {
-	acc, err := a.RegisterAccount(r)
+func (a *AccountService) RegisterAccountAndUser(r *RegistrationDetails) (*JWT, error) {
+	acc, err := a.registerAccount(r)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +104,7 @@ func (a *AccountService) RegisterAccountAndUser(r *RegistrationDetails) (*reposi
 	}
 	acc.User = *user
 	acc, _ = a.Repo.FindByAccountId(fmt.Sprintf("%d", acc.ID))
-	return a.obfuscateAccountTrustedUser(acc), nil
+	return a.generateJWTForValidAccount(acc)
 }
 
 func (a *AccountService) LoginAccount(l *LoginDetails) (*JWT, error) {
@@ -112,16 +114,21 @@ func (a *AccountService) LoginAccount(l *LoginDetails) (*JWT, error) {
 	}
 	isValidPassword := a.PasswordHelper.CheckPasswordHash(l.Password, acc.Password)
 	if isValidPassword {
-		token, validity, err := a.JWTHelper.GenerateWebToken(fmt.Sprintf("%d", acc.ID), a.JWTValidityMinutes)
-		if err != nil {
-			return nil, errors.New("500, Could Not Generate JWT contact api admin")
-		}
-		return &JWT{
-			Token:       token,
-			ExpiryEpoch: validity,
-		}, nil
+		return a.generateJWTForValidAccount(acc)
 	}
 	return nil, errors.New("401, Invalid Avatar ID or password")
+}
+
+func (a *AccountService) generateJWTForValidAccount(acc *repository.Account) (*JWT, error) {
+	token, validity, err := a.JWTHelper.GenerateWebToken(fmt.Sprintf("%d", acc.ID), a.JWTValidityMinutes)
+	if err != nil {
+		return nil, errors.New("500, Could Not Generate JWT contact api admin")
+	}
+	return &JWT{
+		Token:       token,
+		ExpiryEpoch: validity,
+		Account:     a.obfuscateAccountTrustedUser(acc),
+	}, nil
 }
 
 func (a *AccountService) ValidateJWT(roleAccess *RoleAccess, jwt string) error {
@@ -135,4 +142,24 @@ func (a *AccountService) ValidateJWT(roleAccess *RoleAccess, jwt string) error {
 func (a *AccountService) ValidateAccountExists(accountId string) bool {
 	_, isFound := a.Repo.FindByAccountId(accountId)
 	return isFound
+}
+
+func (a *AccountService) GetAccountInfoByJWT(JWTBearer string) (*repository.Account, error) {
+	if JWTBearer == "" {
+		return nil, errors.New("400, Missing the JWT ")
+	}
+	splitBearer := strings.Split(JWTBearer, "Bearer ")
+	if len(splitBearer) <= 1 {
+		return nil, errors.New("Bearer is Supposed to included in the request")
+	}
+	JWTBearer = splitBearer[1]
+	isValid, claims := a.JWTHelper.ValidateWebToken(JWTBearer)
+	if !isValid {
+		return nil, errors.New("401, Not a Valid JWT")
+	}
+	acc, isFound := a.Repo.FindByAccountId(claims.Subject)
+	if !isFound {
+		return nil, errors.New("404 , This account was not found")
+	}
+	return a.obfuscateAccountTrustedUser(acc), nil
 }

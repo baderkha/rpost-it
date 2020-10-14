@@ -40,3 +40,17 @@ func (a *AccountController) POSTAccountJWT(c *gin.Context) {
 	}
 	a.Created(c, &jwt)
 }
+
+func (a *AccountController) GetAccountInfoByJWT(c *gin.Context) {
+	jwt := c.GetHeader("Authorization")
+	if jwt == "" {
+		a.BadRequest(c, "Expected a bearer token for this route")
+		return
+	}
+	acc, err := a.Service.GetAccountInfoByJWT(jwt)
+	if err != nil {
+		a.GenerateResponseFromError(c, err)
+		return
+	}
+	a.OK(c, acc)
+}
