@@ -8,6 +8,13 @@ type BaseRepo struct {
 	Context *gorm.DB
 }
 
+// MakeBaseRepo : Creates a base repository
+func MakeBaseRepo(db *gorm.DB) *BaseRepo {
+	return &BaseRepo{
+		Context: db,
+	}
+}
+
 func (b *BaseRepo) GetContext() *gorm.DB {
 	return b.Context
 }

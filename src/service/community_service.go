@@ -1,9 +1,9 @@
 package service
 
 import (
-	"comment-me/src/repository"
 	"errors"
 	"fmt"
+	"rpost-it/src/repository"
 )
 
 // CreateCommunityBody  : Body we expect from the request for create
@@ -23,30 +23,13 @@ type CommunityIdentifier struct {
 	UniqueID string `form:"uniqueId" binding:"required"`
 }
 
-// ICommunityService : The community service contract we present to the controller
-type ICommunityService interface {
-	// CreateCommunity : Creates a COMMUNITY if one des not exist by the unique id
-	CreateCommunity(identity *CommunityIdentitiy, comBody *CreateCommunityBody) (*repository.Community, error)
-	// FindCommunityByUniqueID : Get the community by the human readable id
-	FindCommunityByUniqueID(uniqueID string) (*repository.Community, error)
-	// FindCommunityByID : Finds the commuinity byu the primary key db id, this is the internal id
-	FindCommunityByID(id string) (*repository.Community, error)
-}
-
 // CommunityService : concrete implementation fo the community service
 type CommunityService struct {
-	Repo           repository.ICommunityRepo
-	AccountService IAccountService
+	Repo repository.ICommunityRepo
 }
 
 // CreateCommunity : Creates a COMMUNITY if one des not exist by the unique id
 func (c *CommunityService) CreateCommunity(identity *CommunityIdentitiy, comBody *CreateCommunityBody) (*repository.Community, error) {
-
-	// ensure we have account
-	accountExists := c.AccountService.ValidateAccountExists(fmt.Sprint(identity.AccountOwner))
-	if !accountExists {
-		return nil, errors.New("400, This account does not exist")
-	}
 
 	// make sure we don't have one that exists , that will cause problems
 	_, isAlreadyExists := c.Repo.FindCommunityByUniqueID(comBody.UniqueID)

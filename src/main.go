@@ -1,12 +1,12 @@
 package main
 
 import (
-	"comment-me/src/dependency"
-	"comment-me/src/repository"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
+	"rpost-it/src/dependency"
+	"rpost-it/src/repository"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -101,7 +101,7 @@ func makeRestRoutes(router *gin.Engine, controller *dependency.Dependency) {
 		}
 		post := api.Group("posts")
 		{
-			post.GET(":id", controller.GetPostById)
+			post.GET(":id", controller.GetPostByID)
 			post.POST("", controller.CreatePost)
 		}
 
@@ -110,7 +110,7 @@ func makeRestRoutes(router *gin.Engine, controller *dependency.Dependency) {
 
 			community.GET(":readableId", controller.GetByHumanReadibleID)
 			community.POST("", controller.CreateCommunity)
-			community.GET(":readableId/posts", controller.GetPostsByUniqueCommunityId)
+			community.GET(":readableId/posts", controller.GetPostsForCommunityByHumanReadibleID)
 			community.POST(":readableId/posts", controller.CreatePost)
 		}
 	}

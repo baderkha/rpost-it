@@ -1,15 +1,20 @@
+
 start:
 	docker-compose -f docker/local/docker-compose.yml up -d
 	make build-local
 	cd dist && ./main
+
 shutodwn:
 	docker-compose -f docker/local/docker-compose.yml down
+
 build-local:prepare-build-dir
-	cd client/rpost-it && yarn build
+	cd client/rpost-it && yarn && yarn build
 	mkdir -p dist/client/rpost-it/build
 	cp -r client/rpost-it/build/* dist/client/rpost-it/build
 	cp env.local.json dist/env.json
 	go build -o dist/main src/main.go
+
+
 build-deploy:prepare-build-dir
 	cp env.json dist/env.json
 	GOOS=linux go build -o dist/main src/main.go

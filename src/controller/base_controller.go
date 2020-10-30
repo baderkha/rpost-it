@@ -1,21 +1,25 @@
 package controller
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
+// BaseResponse : this is the base response the http methods return
 type BaseResponse struct {
 	IsError  bool
 	Message  string
 	Resource interface{}
 }
 
+// BaseController our baseController
 type BaseController struct {
 }
 
+// OK : 200 response with data
 func (b *BaseController) OK(c *gin.Context, resource interface{}) {
 	c.JSON(http.StatusOK, BaseResponse{
 		IsError:  false,
@@ -24,6 +28,7 @@ func (b *BaseController) OK(c *gin.Context, resource interface{}) {
 	})
 }
 
+// GinInputError : use this for Gin errors
 func (b *BaseController) GinInputError(c *gin.Context, err error) {
 	c.AbortWithStatusJSON(http.StatusBadRequest, BaseResponse{
 		IsError:  true,
@@ -32,6 +37,7 @@ func (b *BaseController) GinInputError(c *gin.Context, err error) {
 	})
 }
 
+// Created : 201 with created resource
 func (b *BaseController) Created(c *gin.Context, resource interface{}) {
 	c.JSON(http.StatusCreated, BaseResponse{
 		IsError:  false,
@@ -40,6 +46,7 @@ func (b *BaseController) Created(c *gin.Context, resource interface{}) {
 	})
 }
 
+// NotFound : 404 , with a custom message
 func (b *BaseController) NotFound(c *gin.Context, message string) {
 	c.AbortWithStatusJSON(http.StatusNotFound, BaseResponse{
 		IsError:  true,
@@ -48,6 +55,7 @@ func (b *BaseController) NotFound(c *gin.Context, message string) {
 	})
 }
 
+// InternalServerError : 500 , with an internal message
 func (b *BaseController) InternalServerError(c *gin.Context, message string) {
 	c.AbortWithStatusJSON(http.StatusInternalServerError, BaseResponse{
 		IsError:  true,
@@ -56,6 +64,7 @@ func (b *BaseController) InternalServerError(c *gin.Context, message string) {
 	})
 }
 
+// BadRequest : 400 with a custom message
 func (b *BaseController) BadRequest(c *gin.Context, message string) {
 	c.AbortWithStatusJSON(http.StatusBadRequest, BaseResponse{
 		IsError:  true,
@@ -64,6 +73,7 @@ func (b *BaseController) BadRequest(c *gin.Context, message string) {
 	})
 }
 
+// UnAuthorized : 401 with a custom message
 func (b *BaseController) UnAuthorized(c *gin.Context, message string) {
 	c.AbortWithStatusJSON(http.StatusBadRequest, BaseResponse{
 		IsError:  true,
@@ -72,6 +82,8 @@ func (b *BaseController) UnAuthorized(c *gin.Context, message string) {
 	})
 }
 
+// GenerateResponseFromError : take an error object from some service that follows the following pattern
+// "<<(UINT)CODE>>, <<(STRING)some_message>>"
 func (b *BaseController) GenerateResponseFromError(c *gin.Context, err error) {
 	message := err.Error()
 	messageAr := strings.Split(message, ",")

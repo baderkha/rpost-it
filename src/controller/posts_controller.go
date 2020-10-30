@@ -1,21 +1,24 @@
 package controller
 
 import (
-	"comment-me/src/service"
+	"rpost-it/src/service"
+
 	"github.com/gin-gonic/gin"
 )
 
+// PostController : HTTP controller for the post
 type PostController struct {
-	Service service.IPostService
+	Service service.IFacade
 	BaseController
 }
 
+// CreatePost : Create a post
 func (p *PostController) CreatePost(c *gin.Context) {
-	uniqueId := c.Param("readableId")
+	uniqueID := c.Param("readableId")
 	var postReq service.PostCreateRequestBody
 	var postIdentity service.PostRequestQuery
-	if uniqueId != "" {
-		postIdentity.CommunityUniqueId = &uniqueId
+	if uniqueID != "" {
+		postIdentity.CommunityUniqueID = &uniqueID
 	}
 	err := c.ShouldBindQuery(&postIdentity)
 	if err != nil {
@@ -35,8 +38,9 @@ func (p *PostController) CreatePost(c *gin.Context) {
 	p.OK(c, post)
 }
 
-func (p *PostController) GetPostById(c *gin.Context) {
-	post, err := p.Service.GetPostByid(c.Param("id"))
+// GetPostByID : Get a post by the internal id
+func (p *PostController) GetPostByID(c *gin.Context) {
+	post, err := p.Service.GetPostByID(c.Param("id"))
 	if err != nil {
 		p.GenerateResponseFromError(c, err)
 		return
@@ -44,13 +48,14 @@ func (p *PostController) GetPostById(c *gin.Context) {
 	p.OK(c, post)
 }
 
-func (p *PostController) GetPostsByUniqueCommunityId(c *gin.Context) {
+// GetPostsForCommunityByHumanReadibleID : Get the post by the internal id
+func (p *PostController) GetPostsForCommunityByHumanReadibleID(c *gin.Context) {
 	id := c.Param("readableId")
 	if id == "" {
 		p.BadRequest(c, "Id must be set")
 		return
 	}
-	com, err := p.Service.GetPostsForCommunityByUniqueId(id)
+	com, err := p.Service.GetPostsForCommunityByHumanReadibleID(id)
 	if err != nil {
 		p.GenerateResponseFromError(c, err)
 		return

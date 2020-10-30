@@ -1,4 +1,4 @@
-module comment-me
+module rpost-it
 
 go 1.15
 

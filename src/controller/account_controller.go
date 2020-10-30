@@ -1,15 +1,18 @@
 package controller
 
 import (
-	"comment-me/src/service"
+	"rpost-it/src/service"
+
 	"github.com/gin-gonic/gin"
 )
 
+//AccountController : HTTP Account Controller
 type AccountController struct {
 	BaseController
-	Service service.IAccountService
+	Service service.IFacade
 }
 
+// POSTAccount : Create Account
 func (a *AccountController) POSTAccount(c *gin.Context) {
 	var req service.RegistrationDetails
 	err := c.ShouldBindJSON(&req)
@@ -25,6 +28,7 @@ func (a *AccountController) POSTAccount(c *gin.Context) {
 	a.Created(c, &acc)
 }
 
+// POSTAccountJWT : Create a JWT for registered account
 func (a *AccountController) POSTAccountJWT(c *gin.Context) {
 	var req service.LoginDetails
 	err := c.ShouldBindJSON(&req)
@@ -41,6 +45,7 @@ func (a *AccountController) POSTAccountJWT(c *gin.Context) {
 	a.Created(c, &jwt)
 }
 
+// GetAccountInfoByJWT : Fetch the account information from valid jwt token
 func (a *AccountController) GetAccountInfoByJWT(c *gin.Context) {
 	jwt := c.GetHeader("Authorization")
 	if jwt == "" {

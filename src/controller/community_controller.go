@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"comment-me/src/service"
+	"rpost-it/src/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,7 +9,7 @@ import (
 // CommunityController : Client facing community controller , takes gin operations
 type CommunityController struct {
 	BaseController
-	Service service.ICommunityService
+	Service service.IFacade
 }
 
 // CreateCommunity : Creates a new community !

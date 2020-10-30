@@ -1,60 +1,58 @@
 package service
 
 import (
-	"comment-me/src/repository"
-	"comment-me/src/util"
 	"errors"
 	"fmt"
+	"rpost-it/src/repository"
+	"rpost-it/src/util"
 	"strings"
 	"time"
 )
 
+// RegistrationDetails : things we expected for registration input
 type RegistrationDetails struct {
 	FirstName   string    `json:"firstName" binding:"required"`
 	LastName    string    `json:"lastName" binding:"required"`
 	Email       string    `json:"email" binding:"required"`
 	DateOfBirth time.Time `json:"dob" binding:"required"`
-	AvatarId    string    `json:"avatarId" binding:"required"`
+	AvatarID    string    `json:"avatarId" binding:"required"`
 	Password    string    `json:"password" binding:"required"`
 }
 
+// LoginDetails  : Things we expect when loggin in
 type LoginDetails struct {
-	AvatarId string `json:"avatarId" binding:"required"`
+	AvatarID string `json:"avatarId" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
+// AccessRequest :
 type AccessRequest struct {
-	AccountIdAccess string
+	AccountIDAccess string
 	Operation       string
 }
 
+// RoleAccess : still thinking about this one
 type RoleAccess struct {
 	Resource string
 	Verb     string
 }
 
+// JWT  : base jwt repoonse type
 type JWT struct {
 	Token       string              `json:"token"`
 	ExpiryEpoch int64               `json:"expiryEpoch"`
 	Account     *repository.Account `json:"account"`
 }
 
+// JWTClaim : what we want the claim to have
 type JWTClaim struct {
-	AvatarId  string `json:"avatarId"`
-	AccountId string `json:"accountId"`
+	AvatarID  string `json:"avatarId"`
+	AccountID string `json:"accountId"`
 }
 
-type IAccountService interface {
-	RegisterAccountAndUser(r *RegistrationDetails) (*JWT, error)
-	LoginAccount(l *LoginDetails) (*JWT, error)
-	ValidateJWT(r *RoleAccess, jwt string) error
-	ValidateAccountExists(accountId string) bool
-	GetAccountInfoByJWT(JWT string) (*repository.Account, error)
-}
-
+// AccountService : Account service for major auth logic
 type AccountService struct {
 	Repo                   repository.IAccountRepo
-	UserService            IUserService
 	JWTHelper              util.IJwtHelper
 	PasswordHelper         util.IPassword
 	PassWordHashedStrength uint
@@ -67,13 +65,14 @@ func (a *AccountService) obfuscateAccountTrustedUser(account *repository.Account
 	return account
 }
 
-func (a *AccountService) registerAccount(r *RegistrationDetails) (*repository.Account, error) {
-	_, accountAlreadyExists := a.Repo.FindByAvatarIdOrByEmail(r.AvatarId, r.Email)
+// RegisterAccount : Register an account to the database
+func (a *AccountService) RegisterAccount(r *RegistrationDetails) (*repository.Account, error) {
+	_, accountAlreadyExists := a.Repo.FindByAvatarIdOrByEmail(r.AvatarID, r.Email)
 	if accountAlreadyExists {
 		return nil, errors.New("400, This account already exists")
 	}
 	acc := repository.Account{}
-	acc.AvatarId = r.AvatarId
+	acc.AvatarId = r.AvatarID
 	hashedPass, err := a.PasswordHelper.HashPassword(r.Password, int(a.PassWordHashedStrength))
 	if err != nil {
 		return nil, errors.New("500,Could Not Create Profile. Please Contact API Admin")
@@ -87,28 +86,9 @@ func (a *AccountService) registerAccount(r *RegistrationDetails) (*repository.Ac
 	return nil, errors.New("500,Could Not Create Profile. Please Contact API Admin")
 }
 
-func (a *AccountService) RegisterAccountAndUser(r *RegistrationDetails) (*JWT, error) {
-	acc, err := a.registerAccount(r)
-	if err != nil {
-		return nil, err
-	}
-	user, err := a.UserService.RegisterUser(&UserRegistrationDetails{
-		AccountID:   fmt.Sprintf("%d", acc.ID),
-		DateOfBirth: r.DateOfBirth,
-		FirstName:   r.FirstName,
-		LastName:    r.LastName,
-	})
-	if err != nil {
-		_ = a.Repo.DeleteAccountById(fmt.Sprintf("%d", acc.ID))
-		return nil, err
-	}
-	acc.User = *user
-	acc, _ = a.Repo.FindByAccountId(fmt.Sprintf("%d", acc.ID))
-	return a.generateJWTForValidAccount(acc)
-}
-
+// LoginAccount : Login into the account and return back a jwt
 func (a *AccountService) LoginAccount(l *LoginDetails) (*JWT, error) {
-	acc, exists := a.Repo.FindByAvatarId(l.AvatarId)
+	acc, exists := a.Repo.FindByAvatarId(l.AvatarID)
 	if !exists {
 		return nil, errors.New("401, Invalid Avatar ID or password")
 	}
@@ -117,6 +97,15 @@ func (a *AccountService) LoginAccount(l *LoginDetails) (*JWT, error) {
 		return a.generateJWTForValidAccount(acc)
 	}
 	return nil, errors.New("401, Invalid Avatar ID or password")
+}
+
+// DeleteServiceByIDInternalOnly : internal delete for account , not to be used outside
+func (a *AccountService) DeleteServiceByIDInternalOnly(id string) bool {
+	// guard check
+	if id == "" {
+		return false
+	}
+	return a.Repo.DeleteAccountById(id)
 }
 
 func (a *AccountService) generateJWTForValidAccount(acc *repository.Account) (*JWT, error) {
@@ -131,6 +120,7 @@ func (a *AccountService) generateJWTForValidAccount(acc *repository.Account) (*J
 	}, nil
 }
 
+// ValidateJWT : ensure the jwt is valid
 func (a *AccountService) ValidateJWT(roleAccess *RoleAccess, jwt string) error {
 	isValid, _ := a.JWTHelper.ValidateWebToken(jwt)
 	if !isValid {
@@ -139,11 +129,13 @@ func (a *AccountService) ValidateJWT(roleAccess *RoleAccess, jwt string) error {
 	return nil
 }
 
-func (a *AccountService) ValidateAccountExists(accountId string) bool {
-	_, isFound := a.Repo.FindByAccountId(accountId)
+// ValidateAccountExists : check if account exists for an accountID
+func (a *AccountService) ValidateAccountExists(accountID string) bool {
+	_, isFound := a.Repo.FindByAccountId(accountID)
 	return isFound
 }
 
+// GetAccountInfoByJWT : fetch a valid account by the jwt token , this will also check the validity / expirtation of token
 func (a *AccountService) GetAccountInfoByJWT(JWTBearer string) (*repository.Account, error) {
 	if JWTBearer == "" {
 		return nil, errors.New("400, Missing the JWT ")

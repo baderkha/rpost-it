@@ -1,66 +1,40 @@
 package service
 
 import (
-	"comment-me/src/repository"
 	"errors"
 	"fmt"
+	"rpost-it/src/repository"
 )
 
+// PostCreateRequestBody :
 type PostCreateRequestBody struct {
 	Title string `json:"title" binding:"required"`
 	Text  string `json:"text" binding:"required"`
 }
 
+// PostRequestQuery :
 type PostRequestQuery struct {
-	CommunityId       *uint   `json:"communityId" form:"communityId"`
-	AccountId         *uint   `json:"accountId" binding:"required" form:"accountId"`
-	CommunityUniqueId *string `json:"readableId" form:"readableId"`
+	CommunityID       *uint   `json:"communityId" form:"communityId"`
+	AccountID         *uint   `json:"accountId" binding:"required" form:"accountId"`
+	CommunityUniqueID *string `json:"readableId" form:"readableId"`
 }
 
-type IPostService interface {
-	CreatePostByAccount(postIdentity *PostRequestQuery, postReq *PostCreateRequestBody) (*repository.Post, error)
-	GetPostByid(id string) (*repository.Post, error)
-	GetPostsForCommunity(communityId string) (*[]repository.Post, error)
-	GetPostsForCommunityByUniqueId(uniqueId string) (*[]repository.Post, error)
-}
-
+// PostService : Posting service for posts :)
 type PostService struct {
-	Repo             repository.IPostRepo
-	AccountService   IAccountService
-	CommunityService ICommunityService
+	Repo repository.IPostRepo
 }
 
+// CreatePostByAccount : Create a post by the account in question , given the post content
 func (p *PostService) CreatePostByAccount(postIdentity *PostRequestQuery, postReq *PostCreateRequestBody) (*repository.Post, error) {
 	var post repository.Post
-
-	// validation happens here
-	if postIdentity.AccountId == nil {
-		return nil, errors.New("400, Missing account Id to associate the post with")
-	} else if postIdentity.CommunityId == nil && postIdentity.CommunityUniqueId == nil {
-		return nil, errors.New("400, Missing community Id to associate the post with")
-	} else if postIdentity.CommunityId == nil && postIdentity.CommunityUniqueId != nil {
-		// fetch the community internal id
-		com, err := p.CommunityService.FindCommunityByUniqueID(*postIdentity.CommunityUniqueId)
-		if err != nil {
-			return nil, err
-		}
-		postIdentity.CommunityId = &com.ID
-	} else if postIdentity.CommunityId != nil && postIdentity.CommunityUniqueId != nil {
-		return nil, errors.New("400, You cannot have both set set by unique id and the query parameter")
+	// guard check for post content
+	if post.Text == "" || post.Title == "" {
+		return nil, errors.New("400, Cannot have the Text or title empty")
 	}
 
-	// verify it exists atleast
-	_, err := p.CommunityService.FindCommunityByID(fmt.Sprint(*postIdentity.CommunityId))
-	if err != nil {
-		return nil, err
-	}
-
-	isAccountExists := p.AccountService.ValidateAccountExists(fmt.Sprintf("%d", *postIdentity.AccountId))
-	if !isAccountExists {
-		return nil, errors.New("400, This Account Does not Exist")
-	}
-	post.AccountId = *postIdentity.AccountId
-	post.CommunityId = *postIdentity.CommunityId
+	// safley set stuff from input
+	post.AccountId = *postIdentity.AccountID
+	post.CommunityId = *postIdentity.CommunityID
 	post.Text = postReq.Text
 	post.Title = postReq.Title
 
@@ -72,7 +46,8 @@ func (p *PostService) CreatePostByAccount(postIdentity *PostRequestQuery, postRe
 	return newPost, nil
 }
 
-func (p *PostService) GetPostByid(id string) (*repository.Post, error) {
+// GetPostByID : fetch a post by the unique internal id=
+func (p *PostService) GetPostByID(id string) (*repository.Post, error) {
 	if id == "" {
 		return nil, errors.New("400, Expected id to be provided for the post")
 	}
@@ -83,15 +58,14 @@ func (p *PostService) GetPostByid(id string) (*repository.Post, error) {
 	return post, nil
 }
 
-func (p *PostService) GetPostsForCommunity(communityId string) (*[]repository.Post, error) {
-	posts := p.Repo.FindByCommunityId(communityId)
+// GetPostsForCommunity : Get all posts for a community
+func (p *PostService) GetPostsForCommunity(communityID string) (*[]repository.Post, error) {
+	posts := p.Repo.FindByCommunityId(communityID)
 	return posts, nil
 }
 
-func (p *PostService) GetPostsForCommunityByUniqueId(unqiueId string) (*[]repository.Post, error) {
-	community, err := p.CommunityService.FindCommunityByUniqueID(unqiueId)
-	if err != nil {
-		return nil, err
-	}
-	return p.GetPostsForCommunity(fmt.Sprint(community.ID))
+// GetPostsByCommunityID : get all posts for a community
+func (p *PostService) GetPostsByCommunityID(communityID string) (*[]repository.Post, error) {
+	posts := p.Repo.FindByCommunityId(communityID)
+	return posts, nil
 }

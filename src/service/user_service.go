@@ -1,11 +1,12 @@
 package service
 
 import (
-	"comment-me/src/repository"
 	"errors"
+	"rpost-it/src/repository"
 	"time"
 )
 
+// UserRegistrationDetails : what we expect for user registration input
 type UserRegistrationDetails struct {
 	FirstName   string    `json:"firstName" binding:"required"`
 	LastName    string    `json:"lastName" binding:"required"`
@@ -13,21 +14,19 @@ type UserRegistrationDetails struct {
 	AccountID   string
 }
 
-type IUserService interface {
-	RegisterUser(r *UserRegistrationDetails) (*repository.User, error)
-}
-
+// UserService : user service implementation
 type UserService struct {
 	Repo repository.IUserRepo
 }
 
+// RegisterUser : Register a user to the database
 func (u *UserService) RegisterUser(r *UserRegistrationDetails) (*repository.User, error) {
 	user := repository.User{}
 	if r.AccountID == "" {
 		return nil, errors.New("400, Expecting the account id to not be a nonvalue")
 	}
-	_, accountIdExists := u.Repo.FindUserByAccountId(r.AccountID)
-	if accountIdExists {
+	_, accountIDExists := u.Repo.FindUserByAccountId(r.AccountID)
+	if accountIDExists {
 		return nil, errors.New("400, The associated account already exists , this is not a brand new registration")
 	}
 	user.FirstName = r.FirstName
