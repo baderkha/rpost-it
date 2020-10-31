@@ -10,6 +10,7 @@ const (
 	defaultAccountCacheTimeSeconds uint   = 15
 )
 
+// cacheAccountItem : a cached item , singular item
 type cacheAccountItem struct {
 	Item    *Account
 	IsFound bool
