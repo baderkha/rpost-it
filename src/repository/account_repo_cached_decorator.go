@@ -16,6 +16,22 @@ type cacheAccountItem struct {
 	IsFound bool
 }
 
+// Why do we need a decorator ?
+
+// we need something that can masquerade as the audienceRepo
+// and implement the methods fromt he parent interface
+// with extra logic to use our caching layer
+
+// this will safe our service from writing extra repetitve code that says
+// if in cache , pull else , don't and so on ....if else if else
+
+// so for the service it can just call that method once and from its perspective
+// it's what it's expecting since it's using the repository interface
+
+// also the icing to the cake , this is easily just unit testable no need for intetgration test
+//  by just mocking the two dependencies and making sure
+//  the key and values are what are passed !
+
 // AccountRepositoryCachedDecorator : repository that follows a decorator pattern
 type AccountRepositoryCachedDecorator struct {
 	SQLAccountRepo IAccountRepo     // this must be an sql account repo
