@@ -19,23 +19,28 @@ type MiddleWareController struct {
 }
 
 // VerifyJWTToken : Verify that a token is legit yo
-func (mc *MiddleWareController) VerifyJWTToken(c *gin.Context) {
+func (mc MiddleWareController) VerifyJWTToken(c *gin.Context) {
+
 	// fetch the token from header
 	auth := c.GetHeader("Authorization")
 	if !strings.Contains(auth, "Bearer ") {
-		mc.UnAuthorized(c, stdMsg)
+		mc.UnAuthorized(c, "You're missing a token for this route => must be Bearer <<someToken>>")
+		return
+	} else if c.Query("accountId") == "" {
+		mc.UnAuthorized(c, "You're missing an account id associated with this request. Query parameter accountId")
 		return
 	}
 
 	// get the non bearer part
-	token := strings.Split(auth, "Bearer ")[0]
-
+	token := strings.Split(auth, "Bearer ")[1]
 	acc, err := mc.Service.ValidateJWT(token)
 	if err != nil {
 		mc.GenerateResponseFromError(c, err)
 		return
 	}
-	if fmt.Sprintf("%d", acc.ID) != c.Query("account-id") {
+
+	// make sure jwt acc id matches the quer header
+	if fmt.Sprintf("%d", acc.ID) != c.Query("accountId") {
 		mc.UnAuthorized(c, stdMsg)
 		return
 	}

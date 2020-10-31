@@ -21,6 +21,7 @@ type Dependency struct {
 	*controller.AccountController
 	*controller.PostController
 	*controller.CommunityController
+	MiddleWare *controller.MiddleWareController
 }
 
 func makeService(db *gorm.DB, serverEnv *ServerEnvDependency) service.IFacade {
@@ -28,7 +29,7 @@ func makeService(db *gorm.DB, serverEnv *ServerEnvDependency) service.IFacade {
 		db,
 		&util.JWTHS265{
 			Issuer: serverEnv.JWTIssuer,
-			Secret: []byte(serverEnv.JWTSecret),
+			Secret: serverEnv.JWTSecret,
 		},
 		serverEnv.JWTTokenTime,
 		serverEnv.HashStrength,
@@ -49,6 +50,10 @@ func MakeDependencies(db *gorm.DB, serverEnv *ServerEnvDependency) *Dependency {
 			Service:        svc,
 		},
 		PostController: &controller.PostController{
+			BaseController: controller.BaseController{},
+			Service:        svc,
+		},
+		MiddleWare: &controller.MiddleWareController{
 			BaseController: controller.BaseController{},
 			Service:        svc,
 		},

@@ -126,7 +126,7 @@ func (f *Facade) RegisterAccountAndUser(r *RegistrationDetails) (*RegistrationRe
 
 // ValidateJWT : Validate the jwt token for a given user
 func (f *Facade) ValidateJWT(jwt string) (*repository.Account, error) {
-	return f.ValidateJWT(jwt)
+	return f.AccountSvc.ValidateJWT(nil, jwt)
 }
 
 // LoginAccount : Login to an account and generate a jwt

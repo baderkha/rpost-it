@@ -31,6 +31,11 @@ type CommunityService struct {
 // CreateCommunity : Creates a COMMUNITY if one des not exist by the unique id
 func (c *CommunityService) CreateCommunity(identity *CommunityIdentitiy, comBody *CreateCommunityBody) (*repository.Community, error) {
 
+	// check the important fields
+	if comBody.UniqueID == "" || comBody.Title == "" {
+		return nil, errors.New("400, Unique id or title must be set")
+	}
+
 	// make sure we don't have one that exists , that will cause problems
 	_, isAlreadyExists := c.Repo.FindCommunityByUniqueID(comBody.UniqueID)
 	if isAlreadyExists {

@@ -1,8 +1,10 @@
 package util
 
 import (
-	"github.com/dgrijalva/jwt-go"
+	"fmt"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 type IJwtHelper interface {
@@ -17,13 +19,13 @@ type Claims struct {
 
 // HMAC 265 TOKEN
 type JWTHS265 struct {
-	Secret []byte // string
+	Secret string // string
 	Issuer string
 }
 
 func MakeJWTHS265(secret string, issuer string) *JWTHS265 {
 	return &JWTHS265{
-		Secret: []byte(secret),
+		Secret: secret,
 		Issuer: issuer,
 	}
 }
@@ -38,8 +40,13 @@ func (j *JWTHS265) GenerateWebToken(subject string, ttlMinutes int64) (token str
 			Subject:   subject,
 		},
 	}
-	tokenStringified, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(j.Secret)
+
+	tokenStringified, err := jwt.
+		NewWithClaims(jwt.SigningMethodHS256, claims).
+		SignedString([]byte(j.Secret))
+
 	if err != nil {
+		fmt.Println(err.Error())
 		return "", 0, err
 	}
 	return tokenStringified, expirationTime.Unix(), nil
@@ -48,17 +55,20 @@ func (j *JWTHS265) GenerateWebToken(subject string, ttlMinutes int64) (token str
 
 // Validates the Token
 func (j *JWTHS265) ValidateWebToken(token string) (isValid bool, jwtStdClaims *Claims) {
-	var claim Claims
-	tkn, err := jwt.ParseWithClaims(token, &claim, func(token *jwt.Token) (interface{}, error) {
-		return j.Secret, nil
+	fmt.Println(token)
+	tkn, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
+		fmt.Println(j)
+		return []byte(j.Secret), nil
 	})
+
 	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			return false, nil
-		}
-	}
-	if !tkn.Valid {
 		return false, nil
 	}
-	return true, &claim
+
+	if claims, ok := tkn.Claims.(*Claims); ok && tkn.Valid {
+		return true, claims
+	}
+
+	return false, nil
+
 }

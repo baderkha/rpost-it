@@ -67,6 +67,7 @@ func (a *AccountRepositoryCachedDecorator) FindByAvatarId(avatarId string) (*Acc
 
 // FindByAvatarIdOrByEmail : find by cache if hit return account by avatar id or email, else use sql
 func (a *AccountRepositoryCachedDecorator) FindByAvatarIdOrByEmail(avatarId string, email string) (*Account, bool) {
+	fmt.Println("ATTEMPTING ==>")
 	var key string = fmt.Sprintf(
 		"%s::av_id=%s||email=%s",
 		basePrefixAccountCache,
@@ -115,7 +116,7 @@ func (a *AccountRepositoryCachedDecorator) FindByAccountId(id string) (*Account,
 	}
 
 	// if we find the account repo
-	acc, isFound := a.PersistentAccountRepo.FindByAvatarId(id)
+	acc, isFound := a.PersistentAccountRepo.FindByAccountId(id)
 	cacheVal := cacheAccountItem{
 		Item:    acc,
 		IsFound: isFound,

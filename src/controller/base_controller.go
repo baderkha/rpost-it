@@ -75,7 +75,7 @@ func (b *BaseController) BadRequest(c *gin.Context, message string) {
 
 // UnAuthorized : 401 with a custom message
 func (b *BaseController) UnAuthorized(c *gin.Context, message string) {
-	c.AbortWithStatusJSON(http.StatusBadRequest, BaseResponse{
+	c.AbortWithStatusJSON(http.StatusUnauthorized, BaseResponse{
 		IsError:  true,
 		Message:  "UNAUTHORIZED => " + message,
 		Resource: nil,

@@ -128,7 +128,7 @@ func (a *AccountService) ValidateJWT(roleAccess *RoleAccess, jwt string) (*repos
 		return nil, errors.New("401, Not a Valid JWT")
 	}
 	acc, _ := a.Repo.FindByAccountId(claims.Subject)
-	return acc, nil
+	return a.obfuscateAccountTrustedUser(acc), nil
 }
 
 // ValidateAccountExists : check if account exists for an accountID

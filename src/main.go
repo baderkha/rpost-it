@@ -109,7 +109,7 @@ func makeRestRoutes(router *gin.Engine, controller *dependency.Dependency) {
 		{
 
 			community.GET(":readableId", controller.GetByHumanReadibleID)
-			community.POST("", controller.CreateCommunity)
+			community.POST("", controller.MiddleWare.VerifyJWTToken, controller.CreateCommunity)
 			community.GET(":readableId/posts", controller.GetPostsForCommunityByHumanReadibleID)
 			community.POST(":readableId/posts", controller.CreatePost)
 		}
