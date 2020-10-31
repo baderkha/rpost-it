@@ -10,10 +10,10 @@ type ICacheRepository interface {
 type RedisCacheRepository struct {
 }
 
-func (r *RedisCacheRepository) set(key string, value interface{}, expirationTimeSeconds uint) bool {
+func (r *RedisCacheRepository) Set(key string, value interface{}, expirationTimeSeconds uint) bool {
 	return false
 }
 
-func (r *RedisCacheRepository) get(key string) (item interface{}, isFound bool) {
+func (r *RedisCacheRepository) Get(key string) (item interface{}, isFound bool) {
 	return nil, false
 }

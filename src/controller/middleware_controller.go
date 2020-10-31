@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"rpost-it/src/service"
 	"strings"
 
@@ -29,11 +30,14 @@ func (mc *MiddleWareController) VerifyJWTToken(c *gin.Context) {
 	// get the non bearer part
 	token := strings.Split(auth, "Bearer ")[0]
 
-	err := mc.Service.ValidateJWT(token)
+	acc, err := mc.Service.ValidateJWT(token)
 	if err != nil {
 		mc.GenerateResponseFromError(c, err)
 		return
 	}
-
+	if fmt.Sprintf("%d", acc.ID) != c.Query("account-id") {
+		mc.UnAuthorized(c, stdMsg)
+		return
+	}
 	c.Next()
 }

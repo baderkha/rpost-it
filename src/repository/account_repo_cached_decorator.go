@@ -34,8 +34,8 @@ type cacheAccountItem struct {
 
 // AccountRepositoryCachedDecorator : repository that follows a decorator pattern
 type AccountRepositoryCachedDecorator struct {
-	SQLAccountRepo IAccountRepo     // this must be an sql account repo
-	CachingRepo    ICacheRepository // any type of caching layer , in memory , file , memory , s3 heck you name it :)
+	PersistentAccountRepo IAccountRepo     // this must be an sql account repo , or mongo or something
+	CachingRepo           ICacheRepository // any type of caching layer , in memory , file , memory , s3 heck you name it :)
 }
 
 // FindByAvatarId : find by cache if hit return account by avatar id , else use sql
@@ -56,7 +56,7 @@ func (a *AccountRepositoryCachedDecorator) FindByAvatarId(avatarId string) (*Acc
 	}
 
 	// if we find the account repo
-	acc, isFound := a.SQLAccountRepo.FindByAvatarId(avatarId)
+	acc, isFound := a.PersistentAccountRepo.FindByAvatarId(avatarId)
 	cacheVal := cacheAccountItem{
 		Item:    acc,
 		IsFound: isFound,
@@ -84,7 +84,7 @@ func (a *AccountRepositoryCachedDecorator) FindByAvatarIdOrByEmail(avatarId stri
 	}
 
 	// if we find the account repo
-	acc, isFound := a.SQLAccountRepo.FindByAvatarIdOrByEmail(avatarId, email)
+	acc, isFound := a.PersistentAccountRepo.FindByAvatarIdOrByEmail(avatarId, email)
 	cacheVal := cacheAccountItem{
 		Item:    acc,
 		IsFound: isFound,
@@ -95,7 +95,7 @@ func (a *AccountRepositoryCachedDecorator) FindByAvatarIdOrByEmail(avatarId stri
 
 // CreateAccount : Create account via sql impl just a proxy method
 func (a *AccountRepositoryCachedDecorator) CreateAccount(acc *Account) bool {
-	return a.SQLAccountRepo.CreateAccount(acc)
+	return a.PersistentAccountRepo.CreateAccount(acc)
 }
 
 // FindByAccountId : find an account via the cache layer , if found then cool , otherwise fetch from sql
@@ -115,7 +115,7 @@ func (a *AccountRepositoryCachedDecorator) FindByAccountId(id string) (*Account,
 	}
 
 	// if we find the account repo
-	acc, isFound := a.SQLAccountRepo.FindByAvatarId(id)
+	acc, isFound := a.PersistentAccountRepo.FindByAvatarId(id)
 	cacheVal := cacheAccountItem{
 		Item:    acc,
 		IsFound: isFound,
@@ -126,5 +126,5 @@ func (a *AccountRepositoryCachedDecorator) FindByAccountId(id string) (*Account,
 
 // DeleteAccountById : proxies the normal delete from sql
 func (a *AccountRepositoryCachedDecorator) DeleteAccountById(id string) bool {
-	return a.SQLAccountRepo.DeleteAccountById(id)
+	return a.PersistentAccountRepo.DeleteAccountById(id)
 }

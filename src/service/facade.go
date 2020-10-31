@@ -71,8 +71,11 @@ func MakeFacade(db *gorm.DB,
 			JWTValidityMinutes:     jwtValidityMinutes,
 			PassWordHashedStrength: passwordHashStrengh,
 			PasswordHelper:         passwordHelper,
-			Repo: &repository.AccountRepo{
-				BaseRepo: *repository.MakeBaseRepo(db),
+			Repo: &repository.AccountRepositoryCachedDecorator{
+				PersistentAccountRepo: &repository.AccountRepo{
+					BaseRepo: *repository.MakeBaseRepo(db),
+				},
+				CachingRepo: &repository.RedisCacheRepository{},
 			},
 		},
 		CommSvc: CommunityService{
