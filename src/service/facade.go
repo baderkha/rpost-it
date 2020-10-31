@@ -27,6 +27,8 @@ type IFacade interface {
 	RegisterAccountAndUser(r *RegistrationDetails) (*RegistrationResponse, error)
 	// Validate Login to account and generate a jwt
 	LoginAccount(l *LoginDetails) (*JWT, error)
+	// VerifyToken (bearer)
+	ValidateJWT(jwt string) (*repository.Account, error)
 	// fetch account information for a valid jwt token
 	GetAccountInfoByJWT(JWTBearer string) (*repository.Account, error)
 	// Creates a community by a user
@@ -117,6 +119,11 @@ func (f *Facade) RegisterAccountAndUser(r *RegistrationDetails) (*RegistrationRe
 		Account: acc,
 		JWT:     jwt,
 	}, nil
+}
+
+// ValidateJWT : Validate the jwt token for a given user
+func (f *Facade) ValidateJWT(jwt string) (*repository.Account, error) {
+	return f.ValidateJWT(jwt)
 }
 
 // LoginAccount : Login to an account and generate a jwt

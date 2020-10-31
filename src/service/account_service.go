@@ -121,12 +121,14 @@ func (a *AccountService) generateJWTForValidAccount(acc *repository.Account) (*J
 }
 
 // ValidateJWT : ensure the jwt is valid
-func (a *AccountService) ValidateJWT(roleAccess *RoleAccess, jwt string) error {
-	isValid, _ := a.JWTHelper.ValidateWebToken(jwt)
+// this needs a caching repository ?
+func (a *AccountService) ValidateJWT(roleAccess *RoleAccess, jwt string) (*repository.Account, error) {
+	isValid, claims := a.JWTHelper.ValidateWebToken(jwt)
 	if !isValid {
-		return errors.New("401, Not a Valid JWT")
+		return nil, errors.New("401, Not a Valid JWT")
 	}
-	return nil
+	acc, _ := a.Repo.FindByAccountId(claims.Subject)
+	return acc, nil
 }
 
 // ValidateAccountExists : check if account exists for an accountID
