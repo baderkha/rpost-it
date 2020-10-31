@@ -102,7 +102,7 @@ func makeRestRoutes(router *gin.Engine, controller *dependency.Dependency) {
 		post := api.Group("posts")
 		{
 			post.GET(":id", controller.GetPostByID)
-			post.POST("", controller.CreatePost)
+			post.POST("", controller.MiddleWare.VerifyJWTToken, controller.CreatePost)
 		}
 
 		community := api.Group("communities")
@@ -111,7 +111,7 @@ func makeRestRoutes(router *gin.Engine, controller *dependency.Dependency) {
 			community.GET(":readableId", controller.GetByHumanReadibleID)
 			community.POST("", controller.MiddleWare.VerifyJWTToken, controller.CreateCommunity)
 			community.GET(":readableId/posts", controller.GetPostsForCommunityByHumanReadibleID)
-			community.POST(":readableId/posts", controller.CreatePost)
+			community.POST(":readableId/posts", controller.MiddleWare.VerifyJWTToken, controller.CreatePost)
 		}
 	}
 }
