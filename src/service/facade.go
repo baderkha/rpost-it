@@ -65,7 +65,11 @@ func MakeFacade(db *gorm.DB,
 	jwtValidityMinutes int64,
 	passwordHashStrengh uint,
 	passwordHelper util.IPassword,
+	defaultCacheTimeSeconds uint,
 ) *Facade {
+	fmt.Print(defaultCacheTimeSeconds)
+	duration := time.Duration(defaultCacheTimeSeconds) * time.Second
+	durationClear := time.Duration(defaultCacheTimeSeconds*2) * time.Second
 	if facadePtr != nil {
 		return facadePtr
 	}
@@ -80,7 +84,7 @@ func MakeFacade(db *gorm.DB,
 					BaseRepo: *repository.MakeBaseRepo(db),
 				},
 				CachingRepo: &repository.InMemoryCache{
-					Cacher: cache.New(30*time.Second, 1*time.Minute),
+					Cacher: cache.New(duration, durationClear),
 				},
 			},
 		},

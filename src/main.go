@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/davecgh/go-spew/spew"
 	"io/ioutil"
 	"log"
 	"os"
@@ -19,11 +20,12 @@ import (
 
 // ServerEnv : Models our json input
 type ServerEnv struct {
-	DSN          string `json:"dsn"`
-	HashStrength uint   `json:"hashStrength"`
-	JWTTokenTime int64  `json:"jwtTokenTimeMinutes"`
-	JWTIssuer    string `json:"jwtIssuer"`
-	JWTSecret    string `json:"jwtSecret"`
+	DSN                     string `json:"dsn"`
+	HashStrength            uint   `json:"hashStrength"`
+	JWTTokenTime            int64  `json:"jwtTokenTimeMinutes"`
+	JWTIssuer               string `json:"jwtIssuer"`
+	JWTSecret               string `json:"jwtSecret"`
+	DefaultCacheTimeSeconds uint   `json:"defaultcacheTimeSeconds"`
 }
 
 // reads the enviroment file if it exists , if not then there's a problem
@@ -38,6 +40,7 @@ func readEnviromentFile() *ServerEnv {
 	if err != nil {
 		panic(":0 PANIK , enviroment json could not decode")
 	}
+	spew.Dump(serverEnv)
 	return &serverEnv
 }
 
@@ -129,10 +132,11 @@ func main() {
 	db := getDB(env)
 	migrate(db)
 	controller := dependency.MakeDependencies(db, &dependency.ServerEnvDependency{
-		HashStrength: env.HashStrength,
-		JWTIssuer:    env.JWTIssuer,
-		JWTSecret:    env.JWTSecret,
-		JWTTokenTime: env.JWTTokenTime,
+		HashStrength:            env.HashStrength,
+		JWTIssuer:               env.JWTIssuer,
+		JWTSecret:               env.JWTSecret,
+		JWTTokenTime:            env.JWTTokenTime,
+		DefaultCacheTimeSeconds: env.DefaultCacheTimeSeconds,
 	})
 	router := gin.Default()
 	makeRouter(router, controller)

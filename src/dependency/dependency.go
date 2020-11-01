@@ -10,10 +10,11 @@ import (
 
 // ServerEnvDependency : Server dependencies required to build controller dependencies
 type ServerEnvDependency struct {
-	HashStrength uint   `json:"hashStrength"`
-	JWTTokenTime int64  `json:"jwtTokenTimeMinutes"`
-	JWTIssuer    string `json:"jwtIssuer"`
-	JWTSecret    string `json:"jwtSecret"`
+	HashStrength            uint   `json:"hashStrength"`
+	JWTTokenTime            int64  `json:"jwtTokenTimeMinutes"`
+	JWTIssuer               string `json:"jwtIssuer"`
+	JWTSecret               string `json:"jwtSecret"`
+	DefaultCacheTimeSeconds uint   `json:"defaultcacheTimeSeconds"`
 }
 
 // Dependency : Dependencies required for the router
@@ -34,6 +35,7 @@ func makeService(db *gorm.DB, serverEnv *ServerEnvDependency) service.IFacade {
 		serverEnv.JWTTokenTime,
 		serverEnv.HashStrength,
 		&util.PasswordBcrypt{},
+		serverEnv.DefaultCacheTimeSeconds,
 	)
 }
 
