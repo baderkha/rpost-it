@@ -3,8 +3,10 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/patrickmn/go-cache"
 	"rpost-it/src/repository"
 	"rpost-it/src/util"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -77,7 +79,9 @@ func MakeFacade(db *gorm.DB,
 				PersistentAccountRepo: &repository.AccountRepo{
 					BaseRepo: *repository.MakeBaseRepo(db),
 				},
-				CachingRepo: &repository.RedisCacheRepository{},
+				CachingRepo: &repository.InMemoryCache{
+					Cacher: cache.New(30*time.Second, 1*time.Minute),
+				},
 			},
 		},
 		CommSvc: CommunityService{
