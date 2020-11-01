@@ -16,7 +16,7 @@ type RegistrationResponse struct {
 }
 
 // a little check to make sure we impl the ifc
-var facade IFacade = &Facade{}
+var _ IFacade = &Facade{}
 
 // singleton pointer
 var facadePtr *Facade
@@ -27,6 +27,8 @@ type IFacade interface {
 	RegisterAccountAndUser(r *RegistrationDetails) (*RegistrationResponse, error)
 	// Validate Login to account and generate a jwt
 	LoginAccount(l *LoginDetails) (*JWT, error)
+	// refresh a token if not expired
+	RefreshJWTToken(accountId string) (*JWT, error)
 	// VerifyToken (bearer)
 	ValidateJWT(jwt string) (*repository.Account, error)
 	// fetch account information for a valid jwt token
@@ -147,6 +149,11 @@ func (f *Facade) CreateCommunity(identity *CommunityIdentitiy, comBody *CreateCo
 		return nil, errors.New("400, This account does not exist")
 	}
 	return f.CommSvc.CreateCommunity(identity, comBody)
+}
+
+// RefreshJWTToken : refreshes a token for a valid or existing account id
+func (f *Facade) RefreshJWTToken(accountId string) (*JWT, error) {
+	return f.AccountSvc.RefreshJWTToken(accountId)
 }
 
 // CreatePostByAccount :  this will verify account , and community before allowing proxy of creating the post

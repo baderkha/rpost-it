@@ -120,6 +120,18 @@ func (a *AccountService) generateJWTForValidAccount(acc *repository.Account) (*J
 	}, nil
 }
 
+// RefreshJWTToken : refresh a jwt token for an account Id
+func (a *AccountService) RefreshJWTToken(accountId string) (*JWT, error) {
+	if accountId == "" {
+		return nil, errors.New("Expecting an account ID")
+	}
+	acc, isFound := a.Repo.FindByAccountId(accountId)
+	if !isFound {
+		return nil, errors.New("400, Account id not found")
+	}
+	return a.generateJWTForValidAccount(acc)
+}
+
 // ValidateJWT : ensure the jwt is valid
 // this needs a caching repository ?
 func (a *AccountService) ValidateJWT(roleAccess *RoleAccess, jwt string) (*repository.Account, error) {

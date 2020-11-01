@@ -33,11 +33,25 @@ func (a *AccountController) POSTAccountJWT(c *gin.Context) {
 	var req service.LoginDetails
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-
 		a.GinInputError(c, err)
 		return
 	}
 	jwt, err := a.Service.LoginAccount(&req)
+	if err != nil {
+		a.GenerateResponseFromError(c, err)
+		return
+	}
+	a.Created(c, &jwt)
+}
+
+// POSTAccountJWTRefresh : refresh a jwt for an account Id
+func (a *AccountController) POSTAccountJWTRefresh(c *gin.Context) {
+	accountId := c.Query("accountId")
+	if accountId == "" {
+		a.BadRequest(c, "Expecting account id in the query paramters")
+		return
+	}
+	jwt, err := a.Service.RefreshJWTToken(accountId)
 	if err != nil {
 		a.GenerateResponseFromError(c, err)
 		return

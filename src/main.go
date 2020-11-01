@@ -94,6 +94,8 @@ func makeRestRoutes(router *gin.Engine, controller *dependency.Dependency) {
 			account.POST("", controller.POSTAccount)
 			// generate a jwt for account if valid
 			account.POST("jwt", controller.POSTAccountJWT)
+			// refresh a token once fe is almost expired
+			account.POST("jwt/refresh", controller.MiddleWare.VerifyJWTToken, controller.POSTAccountJWTRefresh)
 		}
 		jwt := api.Group("authorization")
 		{
