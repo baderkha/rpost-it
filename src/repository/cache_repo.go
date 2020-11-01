@@ -2,7 +2,6 @@ package repository
 
 import (
 	"github.com/patrickmn/go-cache"
-	"time"
 )
 
 // ICacheRepository : Cache Repository
@@ -32,15 +31,14 @@ type InMemoryCache struct {
 
 // Gets the item from in memory cache
 func (i *InMemoryCache) Get(key string) (item interface{}, isFound bool) {
-	return i.Cacher.Get("key")
+	return i.Cacher.Get(key)
 }
 
 // Sets the item in memory cache
 func (i *InMemoryCache) Set(key string, value interface{}, expirationTimeSeconds uint) bool {
 	i.Cacher.Set(key,
 		value,
-		time.
-			Duration(expirationTimeSeconds)*time.Second,
+		cache.DefaultExpiration,
 	)
 	return true
 }

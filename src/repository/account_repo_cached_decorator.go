@@ -49,7 +49,8 @@ func (a *AccountRepositoryCachedDecorator) FindByAvatarId(avatarId string) (*Acc
 	// make a check if we have something in cache
 	cacheItem, isFound := a.CachingRepo.Get(key)
 	if isFound {
-		rtrn, ok := cacheItem.(*cacheAccountItem)
+		rtrn, ok := cacheItem.(cacheAccountItem)
+		fmt.Println(rtrn)
 		if ok {
 			return rtrn.Item, rtrn.IsFound
 		}
@@ -78,7 +79,7 @@ func (a *AccountRepositoryCachedDecorator) FindByAvatarIdOrByEmail(avatarId stri
 	// make a check if we have something in cache
 	cacheItem, isFound := a.CachingRepo.Get(key)
 	if isFound {
-		rtrn, ok := cacheItem.(*cacheAccountItem)
+		rtrn, ok := cacheItem.(cacheAccountItem)
 		if ok {
 			return rtrn.Item, rtrn.IsFound
 		}
@@ -109,7 +110,7 @@ func (a *AccountRepositoryCachedDecorator) FindByAccountId(id string) (*Account,
 	// make a check if we have something in cache
 	cacheItem, isFound := a.CachingRepo.Get(key)
 	if isFound {
-		rtrn, ok := cacheItem.(*cacheAccountItem)
+		rtrn, ok := cacheItem.(cacheAccountItem)
 		if ok {
 			return rtrn.Item, rtrn.IsFound
 		}
