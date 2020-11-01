@@ -6,7 +6,7 @@
 
 ### Description
 
-- This is the api for a reddit clone 
+- This is the api and front end client for a reddit clone , it uses react js for front end and uses go-lang for the backend
 ### Requirements 
 
 - In order to run locally , you must have the following Requirements
