@@ -68,7 +68,6 @@ func (a *AccountRepositoryCachedDecorator) FindByAvatarId(avatarId string) (*Acc
 
 // FindByAvatarIdOrByEmail : find by cache if hit return account by avatar id or email, else use sql
 func (a *AccountRepositoryCachedDecorator) FindByAvatarIdOrByEmail(avatarId string, email string) (*Account, bool) {
-	fmt.Println("ATTEMPTING ==>")
 	var key string = fmt.Sprintf(
 		"%s::av_id=%s||email=%s",
 		basePrefixAccountCache,
